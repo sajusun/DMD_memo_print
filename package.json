@@ -1,0 +1,35 @@
+{
+    "name": "DMSA",
+    "productName": "DMS Application",
+    "version": "1.0.0",
+    "main": "main.js",
+    "icon": "icon.gif",
+    "license": "MIT",
+    "author": "sakhawat hossain",
+    "scripts": {
+        "start": "electron .",
+        "build-installer": "electron-builder"
+    },
+    "build": {
+        "appId": "DMSA",
+        "productName": "DMS Application",
+        "directory": {
+            "output": "build"
+        },
+        "target": "NSIS",
+        "win": {
+            "target": [
+                "nsis"
+            ]
+        }
+    },
+    "devDependencies": {
+        "electron": "^10.1.3",
+        "electron-packager": "^15.1.0"
+    },
+    "dependencies": {
+        "jshint": "^2.12.0",
+        "mysql": "^2.18.1",
+        "os-utils": "0.0.14"
+    }
+}

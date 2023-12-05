@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>DMS Application</title>
+    <link rel="stylesheet" href="./lib/style.css">
+    <script type="text/javascript" src="./lib/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="./lib/jquery-3.3.1.min.js"></script>
+
+    <script src="preload.js"></script>
+
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" /> -->
+</head>
+
+<body>
+    <!-- all content load here by javascript -->
+    <section id="mainBody"></section>
+    <!-- footer section -->
+    <section class="footer">
+        <div id="appVersionsinfo">
+            Node -V
+            <script>
+                document.write(process.versions.node)
+            </script>, Chrome -V
+            <script>
+                document.write(process.versions.chrome)
+            </script>, and Electron -V
+            <script>
+                document.write(process.versions.electron)
+            </script>
+        </div>
+        <div for="info" id="devInfo"> DevelopeBy:-Sakhawat Hossain.</div>
+    </section>
+    <section id="alert">
+        <div>
+            <p>
+            </p>
+        </div>
+    </section>
+</body>
+
+</html>
+<style>
+    #alert {
+        height: 80px;
+        width: 300px;
+        background-color: #00308052;
+        border-radius: 10px;
+        position: absolute;
+        right: 2px;
+        visibility: hidden;
+    }
+    
+    #alert div p {
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        font-style: oblique;
+    }
+</style>
