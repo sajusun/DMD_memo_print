@@ -1,0 +1,89 @@
+<section id="userLogin">
+    <!-- <h1 class="pageTitle">User Login panel</h1> -->
+
+    <div>
+        <div>
+            <img src="./icon/login-icon2.gif" alt="userLoginIcon">
+        </div>
+        <div>
+            <label for="userName">User Name :</label>
+            <input type="text" name="userName" id="userName">
+        </div>
+        <div>
+            <label for="userPass">User Password :</label>
+            <input type="password" name="userPass" id="userPass">
+        </div>
+        <button id="cancelBtn" onclick="mainContentLoader()">Cancel</button>
+        <button id="loginBtn">Login</button>
+    </div>
+
+
+</section>
+<style>
+    #userLogin {
+        height: auto;
+        width: 400px;
+        margin: auto;
+    }
+    
+    #userLogin form {
+        height: 500px;
+        margin: auto;
+        display: block;
+        border: 2px solid;
+        border-color: silver;
+        border-radius: 20px;
+        background-color: rgb(155, 199, 219);
+        opacity: 0.8;
+    }
+    
+    div div {
+        color: pink;
+        display: grid;
+        width: 90%;
+        margin: auto;
+    }
+    
+    div div img {
+        height: 250px;
+        width: auto;
+        margin: auto;
+        display: block;
+        margin-bottom: -20px;
+    }
+    
+    div div label {
+        color: darkcyan;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    
+    div div input {
+        height: 34px;
+        margin-top: 5px;
+        border-radius: 10px;
+        text-indent: 10px;
+        text-align: center;
+        font-size: x-large;
+        outline: none;
+    }
+    
+    div button {
+        height: 32px;
+        width: 100px;
+        border-radius: 5px;
+        outline: none;
+        font-size: large;
+        font-weight: bold;
+        margin-top: 20px;
+        float: right;
+        margin-right: 20px;
+        cursor: pointer;
+    }
+    
+    #cancelBtn {
+        float: left;
+        margin-left: 20px;
+        color: red;
+    }
+</style>

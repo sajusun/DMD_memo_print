@@ -1,0 +1,30 @@
+header,footer,body{
+	visibility: hidden;
+}
+.print-memo, .print-memo * {
+	visibility: visible;
+	font-family:sans-serif,serif,cursive;
+	background: block;
+
+}
+.print-memo {
+	position: absolute;
+	top: 0;
+	left: 0;
+
+}
+#main{
+	background: white;
+}
+  @page { margin: 0; }
+ /* body { margin: 1.6cm; }*/
+  .c-data{
+font-family: monospace;
+font-style: italic;
+}
+#total-advance{
+	width: 65px;
+}
+.first,.second, .third,.fourth, .fiveth,.tad{
+font-family: monospace;
+}

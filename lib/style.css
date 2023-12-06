@@ -1,0 +1,126 @@
+  html {
+      overflow: hidden;
+  }
+  
+  body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+  }
+  
+  .btn-default {
+      height: 40px;
+      border: 0;
+      background-color: lightgray;
+      font-weight: bold;
+      border-radius: 5px;
+      font-size: 24px;
+      outline: none;
+  }
+  
+  button.btn-default:hover {
+      cursor: pointer;
+  }
+  
+  .center-line {
+      margin: 0px auto;
+      display: block;
+  }
+  
+  .main-container {
+      height: 300px;
+      width: 600px;
+      background-color: #dedcdc;
+      margin: 20px auto;
+      border-radius: 5px;
+  }
+  
+  .container-body {
+      margin: auto;
+      width: fit-content;
+  }
+  
+  .icon-div {
+      height: 150px;
+      width: 150px;
+      background-color: #948a94;
+      display: inline-grid;
+      border-radius: 5px;
+  }
+  
+  .icon-div img {
+      height: 125px;
+      width: 125px;
+      margin: auto;
+      display: block;
+      border-radius: 5px;
+  }
+  
+  .icon-div img:hover {
+      cursor: pointer;
+      background-color: red;
+  }
+  
+  #titleName {
+      font-size: xx-large;
+      font-weight: bold;
+      color: cadetblue;
+      text-align: center;
+      margin: 0px auto;
+      display: block;
+      top: 0px;
+      position: relative;
+  }
+  
+  .footer {
+      color: #455f41b0;
+      font-weight: bold;
+      font-family: monospace;
+  }
+  
+  #appVersionsinfo {
+      position: absolute;
+      left: 5px;
+      bottom: 2px;
+  }
+  
+  #devInfo {
+      position: absolute;
+      right: 5px;
+      bottom: 2px;
+  }
+  
+  .pageTitle {
+      margin: auto;
+      display: block;
+      height: 50px;
+      font-size: xx-large;
+      text-align: center;
+      /* margin-top: 50px; */
+      color: brown;
+      background: inherit;
+  }
+  
+  #osInfo {
+      margin: auto;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+  }
+  
+  #osInfo .box {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 0px 40px;
+      font-size: 18px;
+      font-weight: 600;
+      font-style: italic;
+      color: gray;
+  }
+  
+  #osInfo .box label {
+      color: darkgray;
+  }

@@ -1,0 +1,295 @@
+html,
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family: sans-serif;
+    width: auto;
+    height: auto;
+    background: linear-gradient(30deg, #c9ffff, #edfa9e, #deffff, #ffb8ff);
+    overflow: hidden;
+}
+
+#main {
+    height: 21.2cm;
+    width: 15cm;
+    position: absolute;
+    margin: auto;
+}
+
+.img-body {
+    height: 21.2cm;
+    width: 15cm;
+    margin: auto;
+}
+
+.imgmamo {
+    height: 18.1cm;
+    width: 12.7cm;
+}
+
+#design-body {
+    height: 18.1cm;
+    width: 12.7cm;
+    position: absolute;
+    margin: 1.2cm;
+    margin-top: 2px;
+}
+
+#top-header {
+    /*border:0.5mm solid black;*/
+    height: 5.4cm;
+}
+
+#main-body {
+    margin-top: 3px;
+    /*	border:2px solid black;*/
+    height: 9.4cm;
+}
+
+#kothaty {
+    height: 0.6cm;
+    border: 0px solid black;
+    margin-top: 1.75mm;
+}
+
+#amunt-in-details-btn {
+    color: white;
+    background-color: blue;
+    width: 1cm;
+}
+
+#amunt-in-details {
+    left: 1.31cm;
+    position: relative;
+    width: 11.3cm;
+    display: block;
+    height: 6mm;
+    font-size: 12pt;
+    font-family: sans-serif;
+    font-style: italic;
+    font-weight: bold;
+}
+
+#total-advance {
+    display: block;
+    width: 60px;
+    position: absolute;
+    height: inherit;
+    text-align: right;
+}
+
+;
+#main-footer {
+    margin-top: 1mm;
+    /*border:2px solid black;*/
+    height: 2.2cm;
+}
+
+.first {
+    text-align: left;
+    width: 10.5mm;
+    /*border-right: 1px solid black;*/
+}
+
+.second {
+    width: 6.3cm;
+    font-family: monospace;
+    text-transform: capitalize;
+    text-align: left;
+    /*border-right: 1px solid black;*/
+}
+
+.third {
+    width: 1.2cm;
+    font-family: monospace;
+    /*border-right: 1px solid black;*/
+}
+
+.fourth {
+    font-family: monospace;
+    width: 2.1cm;
+    /*border-right: 1px solid black;*/
+}
+
+.fiveth {
+    width: 2.1cm;
+    font-family: monospace;
+    text-align: right;
+}
+
+tr {
+    border: 1px solid black;
+}
+
+.demo {
+    font-family: monospace;
+    font-weight: bold;
+    color: #90f;
+    text-transform: capitalize;
+}
+
+.final-result {
+    height: 1.7cm;
+}
+
+.table {
+    display: block;
+    position: relative;
+    /*left: -0.1cm;*/
+    /*top: -0.1cm;*/
+    /*top: 0.56cm;*/
+}
+
+th {
+    position: relative;
+    height: 5.9mm;
+    top: 0.5mm;
+}
+
+.td {
+    height: auto;
+    width: 101mm;
+    border: 1px solid black;
+}
+
+table {
+    font-size: 12pt;
+}
+
+span.tad {
+    display: block;
+    /*border: 1px solid red;*/
+    height: inherit;
+    /*top: -0.5mm;*/
+    position: relative;
+}
+
+.t-rows {
+    border: 0.5mm solid black;
+    display: block;
+    width: auto;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+}
+
+#t-rows-header {
+    text-align: center;
+    font-weight: bold;
+    border-top: 0.5mm solid black;
+}
+
+.t-cols {
+    border-left: 0.5mm solid black;
+    position: relative;
+    /*height: 0.6cm;*/
+    display: table-cell;
+}
+
+#t-cols1 {
+    width: 1.1cm;
+    text-align: center;
+    border-left: none;
+}
+
+#t-cols2 {
+    width: 5.9cm;
+}
+
+#t-cols3 {
+    width: 1.6cm;
+}
+
+#t-cols4 {
+    width: 2cm;
+}
+
+#t-cols5 {
+    width: 2cm;
+}
+
+#client-info {
+    display: flex;
+}
+
+.customar-data {
+    /*border: 0.1mm solid black;*/
+    height: 1.1cm;
+    width: 6.5cm;
+    display: table-footer-group;
+    top: 4.3cm;
+    position: relative;
+    left: 1.7cm;
+    font-weight: bold;
+}
+
+.c-data {
+    display: block;
+    height: 0.5cm;
+    width: 6.4cm;
+    top: 0.5mm;
+    position: relative;
+    font-size: 12pt;
+    font-family: monospace;
+    font-style: italic;
+    text-transform: capitalize;
+}
+
+.memo-date {
+    /*border: 0.1mm solid black;*/
+    height: 0.8cm;
+    width: 3.3cm;
+    top: 4.6cm;
+    position: relative;
+    left: 2.74cm;
+    font-weight: bold;
+}
+
+.m-date {
+    height: auto;
+    width: 7.8mm;
+    /*border: 0.1mm solid
+black;*/
+    display: table-cell;
+    left: 1mm;
+    position: relative;
+    top: 1.2mm;
+    text-align: center;
+}
+
+span#date {
+    /*background-color: red;
+*/
+    left: 1.3mm;
+}
+
+span#month {
+    /*background-color: green;*/
+    left: 2.5mm;
+}
+
+span#year {
+    left: 5mm;
+    border-radius: 5mm;
+    height: auto;
+}
+
+form {
+    position: absolute;
+    display: grid;
+    top: 2cm;
+    left: 5px;
+}
+
+#print,
+#printSave {
+    font-family: cursive;
+    font-size: 14pt;
+    color: #06f;
+    background: linear-gradient(45deg, #c9ffff, #edfa9e, #deffff, #ffb8ff);
+    border-radius: 10pt;
+    height: 28pt;
+    width: 100pt;
+    font-weight: bold;
+    margin-bottom: 15px;
+}

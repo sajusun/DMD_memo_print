@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!-- বাংলা -->
+<html>
+<head>
+    <title>Dinajpur Designs</title>
+    <link rel="stylesheet" type="text/css" href="lib/dinajpurdesigns.css">
+    <link rel="stylesheet" type="text/css" media="print" href="lib/print.css">
+    <script type="text/javascript" src="lib/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="lib/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="lib/dinajpurdesigns.js"></script>
+    <script type="text/javascript" src="lib/inwordbn.js"></script>
+    <script type="text/javascript" src="lib/dataStore.js"></script>
+</head>
+
+<body>
+    <section class="img-body">
+        <section id="main" class="main print-memo">
+            <section id="design-body" class="design-body">
+                <img src="lib/Dmd memo.jpg" class="imgmamo">
+                <section style="position: absolute;top: 0px;">
+                    <section id="top-header" class="top-header">
+                        <div id="client-info">
+                            <div class="customar-data">
+                                <span class="c-data" contenteditable="true"></span>
+                                <span class="c-data" contenteditable="true"></span>
+                            </div>
+                            <div class="memo-date">
+                                <span contenteditable="true" class="m-date" id="date"></span>
+                                <span contenteditable="true" class="m-date" id="month"></span>
+                                <span contenteditable="true" class="m-date" id="year"></span>
+                            </div>
+                        </div>
+                    </section>
+                    <section id="main-body" class="main-body">
+                        <table class="table">
+                            <tr>
+                                <th class="first"></th>
+                                <th class="second"></th>
+                                <th class="third"></th>
+                                <th class="fourth"></th>
+                                <th class="fiveth"></th>
+                            </tr>
+                            <tr id="1" onclick="calculation('1');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second" id="1details"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('1')" id="1net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('1')" id="1price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="1total"></span><span id="1amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="2" onclick="calculation('2');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second" id="2details"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('2')" id="2net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('2')" id="2price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="2total"></span><span id="2amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="3" onclick="calculation('3');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('3')" id="3net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('3')" id="3price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="3total"></span><span id="3amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="4" onclick="calculation('4');">
+                                <th class="first"> </th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('4')" id="4net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('4')" id="4price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="4total"></span><span id="4amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="5" onclick="calculation('5');">
+                                <th class="first"> </th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('5')" id="5net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('5')" id="5price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="5total"></span><span id="5amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="6" onclick="calculation('6');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('6')" id="6net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('6')" id="6price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="6total"></span><span id="6amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="7" onclick="calculation('7');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('7')" id="7net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('7')" id="7price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="7total"></span><span id="7amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="8" onclick="calculation('8');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('8')" id="8net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('8')" id="8price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="8total"></span><span id="8amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="9" onclick="calculation('9');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('9')" id="9net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('9')" id="9price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="9total"></span><span id="9amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+                            <tr id="10" onclick="calculation('10');">
+                                <th class="first"></th>
+                                <th contenteditable="true" class="second"></th>
+                                <th contenteditable="true" class="third" onkeyup="result('10')" id="10net"></th>
+                                <th contenteditable="true" class="fourth" onkeyup="result('10')" id="10price"></th>
+                                <th contenteditable="false" class="fiveth" id="">
+                                    <span id="10total"></span><span id="10amunt-sign" class="amunt-sign"></span>
+                                </th>
+                            </tr>
+
+                            <tr id="11" class="final-result" onclick="payment();">
+                                <th class="first"></th>
+                                <th class="second"></th>
+                                <th class="third" onkeyup="result('11')" id="111net">
+                                    <table>
+                                        <tr><span class="tad" id="11net"></span></tr>
+                                        <tr><span class="tad total-advance"></span>
+                                        </tr>
+                                        <tr><span class="tad"></span></tr>
+                                    </table>
+                                </th>
+                                <th class="fourth" onkeyup="result('11')" id="11price"></th>
+                                <th class="fiveth" id="11total">
+                                    <table>
+                                        <tr><span class="tad" id=""><span id="total-amunt"></span><span id="total-amunt-sign"></span>
+                                            </span>
+                                        </tr>
+                                        <tr><span class="tad">
+						<span class="total-advance-cls" id="total-advance" contenteditable="true" onkeyup="payment('total-due');">
+					</span><span id="advance-value-sign"></span></span>
+                                        </tr>
+                                        <tr><span class="tad" id=""><span id="total-due"></span><span id="due-amunt-sign"></span>
+                                            </span>
+                                            </span>
+                                        </tr>
+                                    </table>
+                                </th>
+                            </tr>
+
+                        </table>
+                    </section>
+                    <section id="kothaty" class="kothay">
+                        <!-- 	<span id="amunt-in-details-btn"></span> -->
+                        <span id="amunt-in-details"></span>
+                    </section>
+                    <section id="main-footer" ; class="main-footer">
+                    </section>
+                </section>
+            </section>
+        </section>
+        <section id="alert">
+            <div>
+                <p>
+                </p>
+            </div>
+        </section>
+    </section>
+</body>
+
+</html>
+<form id="only-print" name="myForm" action="{action page}">
+    <input id="print" type="button" value="Only Print">
+    <input id="printSave" type="button" value="Save & Print">
+</form>
+
+<script type="text/javascript" src="lib/DMD-bottom.js"></script>
+<style>
+    #alert {
+        height: 80px;
+        width: 300px;
+        background-color: #00308052;
+        border-radius: 10px;
+        position: absolute;
+        right: 2px;
+        bottom: 300px;
+        visibility: hidden;
+    }
+    
+    #alert div p {
+        text-align: center;
+        font-size: 14pt;
+        font-weight: bold;
+        font-style: oblique;
+        margin-block-start: 1.9rem;
+    }
+</style>
+<script>
+    function appAlert(text = "Welcome..", textColor = "green") {
+        var box = $("#alert")
+        box[0].style.visibility = "visible"
+        var p = box[0].children[0].children[0];
+        p.innerText = text;
+        p.style.color = textColor;
+        setTimeout(() => {
+            box[0].style.visibility = "hidden"
+        }, 2000);
+    }
+    
+</script>

@@ -1,0 +1,80 @@
+<section id="viewMemoData">
+    <div>
+        <div>
+            <img src="./icon/login-icon2.gif" alt="userLoginIcon">
+        </div>
+        <div>
+            <label for="userName">User Name :</label>
+            <input type="text" name="userName" id="userName">
+        </div>
+        <div>
+            <label for="userPass">User Password :</label>
+            <input type="password" name="userPass" id="userPass">
+        </div>
+        <button id="loginBtn">Login</button>
+    </div>
+    <div id="contact-table"></div>
+</section>
+<style>
+    #viewMemoData {
+        height: auto;
+        width: auto;
+        background-color: inherit;
+    }
+</style>
+<script>
+    let fs = require('fs')
+    let sno = 0
+    document.querySelector("#loginBtn").onclick = function() {
+        var filename = 'customerName';
+        fileN = "./dataFiles/" + filename;
+        var name = $("#userName").val();
+        var pass = $("#userPass").val();
+        let md;
+        console.log(name + pass)
+        if (fs.existsSync(fileN)) {
+
+            // console.log("file have");
+            // fs.appendFile(fileN, 'name :' + name + '\n' + "password :" + pass + '\n', function(err) {
+            //     if (err) {
+            //         console.log("err")
+            //     } else {
+            //         addEntry(name, pass)
+            //         console.log("file append success");
+            //     }
+            // })
+
+            let data = fs.readFileSync(fileN, 'utf8').split('\n')
+
+            data.forEach((contact, index) => {
+                md = contact
+                var [name, email] = contact.split('\n')
+                console.log(index + " :" + contact);
+                console.log("1st name : " + data[0]);
+                addEntry(name, email)
+            })
+
+        } else {
+            console.log("file not have");
+
+            fs.writeFile(fileN, 'name :' + name + '\n' + "password :" + pass + '\n', function(err) {
+                if (err) {
+                    console.log(err)
+                } else {
+                    console.log("file writing success");
+                }
+            })
+
+        }
+
+    }
+
+    function addEntry(name, pass) {
+        if (name && pass) {
+            sno++
+            let updateString = '<tr><td>' + sno + '</td><td>' + name + '</td><td>' +
+                pass + '</td></tr>'
+            $('#contact-table').append(updateString)
+        }
+    }
+</script>
