@@ -851,6 +851,93 @@ function restoreDatabase(srcPath) {
   return true;
 }
 
+/**
+ * Get comprehensive sales report for a date range
+ */
+function getSalesReport({ fromDate, toDate } = {}) {
+  let memoWhere = [];
+  let payWhere = [];
+
+  if (fromDate) {
+    memoWhere.push(`memo_date >= '${fromDate}'`);
+    payWhere.push(`payment_date >= '${fromDate}'`);
+  }
+  if (toDate) {
+    memoWhere.push(`memo_date <= '${toDate}'`);
+    payWhere.push(`payment_date <= '${toDate}'`);
+  }
+
+  const memoWhereSql = memoWhere.length ? `WHERE ${memoWhere.join(' AND ')}` : '';
+  const payWhereSql = payWhere.length ? `WHERE ${payWhere.join(' AND ')}` : '';
+
+  // Memos summary
+  const summaryRes = db.exec(`
+    SELECT 
+      COUNT(*) AS memo_count,
+      COALESCE(SUM(subtotal), 0) AS total_subtotal,
+      COALESCE(SUM(discount), 0) AS total_discount,
+      COALESCE(SUM(grand_total), 0) AS total_billed,
+      COALESCE(SUM(advance_paid), 0) AS total_advance,
+      COALESCE(SUM(due_amount), 0) AS total_due
+    FROM memos
+    ${memoWhereSql}
+  `);
+  const summary = resultToObjects(summaryRes)[0] || {
+    memo_count: 0, total_subtotal: 0, total_discount: 0, total_billed: 0, total_advance: 0, total_due: 0
+  };
+
+  // Payments collected in date range
+  const payRes = db.exec(`
+    SELECT 
+      p.id, p.memo_id, p.payment_date, p.amount, p.payment_method, p.note,
+      m.memo_no, m.customer_name, m.customer_phone
+    FROM payments p
+    LEFT JOIN memos m ON p.memo_id = m.id
+    ${payWhereSql}
+    ORDER BY p.id DESC
+  `);
+  const payments = resultToObjects(payRes);
+
+  let extraPaymentsTotal = 0;
+  payments.forEach(p => extraPaymentsTotal += p.amount);
+
+  // Total cash collected = advance on memos created in this period + subsequent due payments collected in this period
+  summary.total_extra_paid = extraPaymentsTotal;
+  summary.total_cash_inflow = summary.total_advance + extraPaymentsTotal;
+
+  // List of all memos in this period
+  const memosRes = db.exec(`
+    SELECT * FROM memos
+    ${memoWhereSql}
+    ORDER BY id DESC
+  `);
+  const memos = resultToObjects(memosRes);
+
+  // Item wise sales
+  const itemWhere = memoWhere.length ? `WHERE m.${memoWhere.join(' AND m.')}` : '';
+  const itemsRes = db.exec(`
+    SELECT 
+      mi.description, 
+      mi.unit, 
+      SUM(mi.quantity) AS total_quantity, 
+      SUM(mi.total_price) AS total_revenue, 
+      COUNT(*) AS orders_count
+    FROM memo_items mi
+    JOIN memos m ON mi.memo_id = m.id
+    ${itemWhere}
+    GROUP BY mi.description
+    ORDER BY total_revenue DESC
+  `);
+  const itemsBreakdown = resultToObjects(itemsRes);
+
+  return {
+    summary,
+    memos,
+    payments,
+    itemsBreakdown
+  };
+}
+
 module.exports = {
   initDatabase,
   getSettings,
@@ -865,6 +952,8 @@ module.exports = {
   getCustomers,
   getDashboardStats,
   getNextMemoNumber,
+  getSalesReport,
   backupDatabase,
   restoreDatabase
 };
+

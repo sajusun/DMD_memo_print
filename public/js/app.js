@@ -141,6 +141,11 @@ const app = {
         subEl.textContent = 'সকল গ্রাহকের মোবাইল নম্বর ও লাইফটাইম হিসাব বিবরণী';
         this.loadCustomers();
         break;
+      case 'reports':
+        titleEl.textContent = 'ব্যবসায়িক হিসাব ও বিক্রয় রিপোর্ট';
+        subEl.textContent = 'তারিখ অনুযায়ী বিক্রয়, ক্যাশ আদায় ও মালামাল বিশ্লেষণ এবং এক্সেল ডাউনলোড';
+        this.loadReportsView();
+        break;
       case 'settings':
         titleEl.textContent = 'সেটিংস ও প্রিন্টার কনফিগারেশন';
         subEl.textContent = 'প্রতিষ্ঠানের নাম, ঠিকানা, প্রিন্টার মোড ও ডাটাবেজ ব্যাকআপ';
@@ -907,6 +912,293 @@ const app = {
   },
 
   // -------------------------------------------------------------
+  // REPORTS & EXCEL EXPORTS
+  // -------------------------------------------------------------
+  activeReportData: null,
+  activeReportTab: 'items',
+
+  async loadReportsView() {
+    this.applyReportPreset('month');
+    await this.fetchAndRenderReport();
+  },
+
+  applyReportPreset(preset) {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    document.querySelectorAll('.report-preset-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.preset === preset);
+    });
+
+    const fromInput = document.getElementById('report-from-date');
+    const toInput = document.getElementById('report-to-date');
+
+    if (preset === 'today') {
+      fromInput.value = todayStr;
+      toInput.value = todayStr;
+    } else if (preset === 'week') {
+      const pastWeek = new Date();
+      pastWeek.setDate(today.getDate() - 7);
+      fromInput.value = pastWeek.toISOString().split('T')[0];
+      toInput.value = todayStr;
+    } else if (preset === 'month') {
+      const firstDay = todayStr.substring(0, 7) + '-01';
+      fromInput.value = firstDay;
+      toInput.value = todayStr;
+    } else if (preset === 'last_month') {
+      const y = today.getFullYear();
+      const m = today.getMonth(); // 0-indexed, current month
+      const lastMonthDate = new Date(y, m - 1, 1);
+      const lastMonthEnd = new Date(y, m, 0); // last day of previous month
+      fromInput.value = lastMonthDate.toISOString().split('T')[0];
+      toInput.value = lastMonthEnd.toISOString().split('T')[0];
+    } else if (preset === 'all') {
+      fromInput.value = '';
+      toInput.value = '';
+    }
+  },
+
+  async fetchAndRenderReport() {
+    const fromDate = document.getElementById('report-from-date').value;
+    const toDate = document.getElementById('report-to-date').value;
+
+    try {
+      const report = await window.dmdAPI.getSalesReport({ fromDate, toDate });
+      this.activeReportData = { ...report, fromDate, toDate };
+
+      const bn = window.dmdAPI.bangla;
+      const s = report.summary || {};
+
+      document.getElementById('rep-total-sales').textContent = bn.formatCurrencyBn(s.total_billed || 0);
+      document.getElementById('rep-memo-count').textContent = `${bn.en2bn(s.memo_count || 0)} টি মেমো`;
+      document.getElementById('rep-total-cash').textContent = bn.formatCurrencyBn(s.total_cash_inflow || 0);
+      document.getElementById('rep-total-discount').textContent = bn.formatCurrencyBn(s.total_discount || 0);
+      document.getElementById('rep-total-due').textContent = bn.formatCurrencyBn(s.total_due || 0);
+
+      // Render Item breakdown table
+      const itemsTbody = document.getElementById('rep-items-tbody');
+      itemsTbody.innerHTML = '';
+      if (!report.itemsBreakdown || report.itemsBreakdown.length === 0) {
+        itemsTbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 24px;">এই তারিখ রেঞ্জে কোনো পণ্যের বিক্রয় তথ্য নেই</td></tr>';
+      } else {
+        report.itemsBreakdown.forEach((it, idx) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="text-align: center; font-weight: 700;">${bn.en2bn(idx + 1)}</td>
+            <td style="font-weight: 600;">${it.description}</td>
+            <td style="text-align: center;">${bn.en2bn(it.total_quantity)} ${it.unit || ''}</td>
+            <td style="text-align: center;">${bn.en2bn(it.orders_count)} বার</td>
+            <td style="text-align: right; font-weight: 700; color: var(--accent-primary);">${bn.formatCurrencyBn(it.total_revenue)}</td>
+          `;
+          itemsTbody.appendChild(tr);
+        });
+      }
+
+      // Render Memos table
+      const memosTbody = document.getElementById('rep-memos-tbody');
+      memosTbody.innerHTML = '';
+      if (!report.memos || report.memos.length === 0) {
+        memosTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-dim); padding: 24px;">কোনো মেমো পাওয়া যায়নি</td></tr>';
+      } else {
+        report.memos.forEach(m => {
+          const tr = document.createElement('tr');
+          const badgeClass = m.payment_status === 'paid' ? 'badge-paid' : (m.payment_status === 'partial' ? 'badge-partial' : 'badge-due');
+          const statusLabel = m.payment_status === 'paid' ? 'পরিশোধিত' : (m.payment_status === 'partial' ? 'আংশিক বাকি' : 'সম্পূর্ণ বাকি');
+          tr.innerHTML = `
+            <td style="font-weight: 700; color: var(--accent-primary);">${m.memo_no}</td>
+            <td>${m.memo_date}</td>
+            <td style="font-weight: 600;">${m.customer_name}</td>
+            <td>${m.customer_phone || '-'}</td>
+            <td>${bn.formatCurrencyBn(m.grand_total)}</td>
+            <td style="color: var(--success);">${bn.formatCurrencyBn(m.advance_paid)}</td>
+            <td style="color: var(--danger); font-weight: 600;">${bn.formatCurrencyBn(m.due_amount)}</td>
+            <td><span class="badge ${badgeClass}">${statusLabel}</span></td>
+          `;
+          memosTbody.appendChild(tr);
+        });
+      }
+
+      // Render Payments table
+      const payTbody = document.getElementById('rep-payments-tbody');
+      payTbody.innerHTML = '';
+      if (!report.payments || report.payments.length === 0) {
+        payTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-dim); padding: 24px;">এই সময়ের মধ্যে কোনো পেছনের বকেয়া আদায় এন্ট্রি নেই</td></tr>';
+      } else {
+        report.payments.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${p.payment_date}</td>
+            <td style="font-weight: 700;">${p.memo_no || '-'}</td>
+            <td>${p.customer_name || '-'}</td>
+            <td>${p.customer_phone || '-'}</td>
+            <td style="font-weight: 700; color: var(--success);">${bn.formatCurrencyBn(p.amount)}</td>
+            <td>${p.payment_method || 'ক্যাশ'}</td>
+            <td style="font-size: 12px; color: var(--text-muted);">${p.note || '-'}</td>
+          `;
+          payTbody.appendChild(tr);
+        });
+      }
+    } catch (err) {
+      console.error('Error fetching report:', err);
+      this.toast('রিপোর্ট ডেটা লোড করতে সমস্যা হয়েছে', 'danger');
+    }
+  },
+
+  switchReportTab(tabName) {
+    this.activeReportTab = tabName;
+    document.querySelectorAll('.report-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+    document.querySelectorAll('.rep-tab-content').forEach(el => {
+      el.classList.add('hidden');
+    });
+    const target = document.getElementById(`rep-tab-${tabName}`);
+    if (target) target.classList.remove('hidden');
+  },
+
+  async exportSalesReportExcel() {
+    if (!this.activeReportData) {
+      await this.fetchAndRenderReport();
+    }
+    const fromStr = this.activeReportData.fromDate || 'all';
+    const toStr = this.activeReportData.toDate || 'all';
+    const filename = `DMD_Sales_Report_${fromStr}_to_${toStr}.xlsx`;
+
+    try {
+      const res = await window.dmdAPI.exportExcel({
+        type: 'sales_summary',
+        data: this.activeReportData,
+        defaultFilename: filename
+      });
+      if (res && res.success) {
+        this.toast('এক্সেল রিপোর্ট সফলভাবে সেভ হয়েছে: ' + res.filePath, 'success');
+      }
+    } catch (err) {
+      console.error('Excel export error:', err);
+      this.toast('এক্সেল এক্সপোর্টে ত্রুটি হয়েছে', 'danger');
+    }
+  },
+
+  async exportMemosExcel() {
+    try {
+      const search = document.getElementById('filter-memo-search').value.trim();
+      const status = document.getElementById('filter-memo-status').value;
+      const fromDate = document.getElementById('filter-memo-from').value;
+      const toDate = document.getElementById('filter-memo-to').value;
+
+      const { memos } = await window.dmdAPI.getMemos({ search, status, fromDate, toDate, limit: 1000 });
+      if (!memos || memos.length === 0) {
+        this.toast('এক্সপোর্ট করার মতো কোনো মেমো নেই', 'warning');
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const res = await window.dmdAPI.exportExcel({
+        type: 'memos_list',
+        data: memos,
+        defaultFilename: `DMD_Memos_Export_${today}.xlsx`
+      });
+
+      if (res && res.success) {
+        this.toast('মেমো তালিকা এক্সেলে ডাউনলোড হয়েছে: ' + res.filePath, 'success');
+      }
+    } catch (err) {
+      console.error('Export error:', err);
+      this.toast('এক্সেলে এক্সপোর্টে সমস্যা হয়েছে', 'danger');
+    }
+  },
+
+  async exportDuesExcel() {
+    try {
+      const { memos } = await window.dmdAPI.getMemos({ status: 'due', limit: 1000 });
+      const { memos: partialMemos } = await window.dmdAPI.getMemos({ status: 'partial', limit: 1000 });
+      const allDues = [...(memos || []), ...(partialMemos || [])];
+
+      if (allDues.length === 0) {
+        this.toast('কোনো বকেয়া তথ্য নেই', 'warning');
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const res = await window.dmdAPI.exportExcel({
+        type: 'due_list',
+        data: allDues,
+        defaultFilename: `DMD_Due_List_${today}.xlsx`
+      });
+
+      if (res && res.success) {
+        this.toast('বকেয়া তালিকা এক্সেলে ডাউনলোড হয়েছে: ' + res.filePath, 'success');
+      }
+    } catch (err) {
+      console.error('Export error:', err);
+      this.toast('এক্সেলে এক্সপোর্টে সমস্যা হয়েছে', 'danger');
+    }
+  },
+
+  printReport() {
+    if (!this.activeReportData) return;
+    const bn = window.dmdAPI.bangla;
+    const settings = this.settings || {};
+    const rep = this.activeReportData;
+    const s = rep.summary || {};
+
+    const itemsRows = (rep.itemsBreakdown || []).map((it, idx) => `
+      <tr>
+        <td style="text-align: center;">${bn.en2bn(idx + 1)}</td>
+        <td>${it.description}</td>
+        <td style="text-align: center;">${bn.en2bn(it.total_quantity)} ${it.unit || ''}</td>
+        <td style="text-align: center;">${bn.en2bn(it.orders_count)}</td>
+        <td style="text-align: right; font-weight: 600;">${bn.formatCurrencyBn(it.total_revenue)}</td>
+      </tr>
+    `).join('');
+
+    const html = `
+      <div class="print-mode-full_vector" style="padding: 10mm 15mm;">
+        <div class="print-header">
+          <div class="print-shop-name">${settings.shop_name || 'দিনাজপুর মেটালিক ডিজাইনস'}</div>
+          <div class="print-tagline">বিক্রয় ও হিসাব বিবরণী রিপোর্ট</div>
+          <div style="font-size: 11pt; color: #444; margin-top: 4px;">
+            তারিখ রেঞ্জ: <strong>${rep.fromDate || 'শুরু'} হতে ${rep.toDate || 'বর্তমান'}</strong>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; border: 1px solid #000; padding: 10px;">
+          <div><small>মোট বিক্রি:</small><br><strong>${bn.formatCurrencyBn(s.total_billed)}</strong></div>
+          <div><small>মোট ক্যাশ আদায়:</small><br><strong style="color: #059669;">${bn.formatCurrencyBn(s.total_cash_inflow)}</strong></div>
+          <div><small>মোট ছাড়:</small><br><strong>${bn.formatCurrencyBn(s.total_discount)}</strong></div>
+          <div><small>বকেয়া পাওনা:</small><br><strong style="color: #dc2626;">${bn.formatCurrencyBn(s.total_due)}</strong></div>
+        </div>
+
+        <h4 style="margin: 14px 0 8px 0; font-size: 12pt;">আইটেম ভিত্তিক বিক্রয় বিবরণী</h4>
+        <table class="print-table">
+          <thead>
+            <tr>
+              <th style="width: 40px;">ক্র.</th>
+              <th>কাজের বিবরণ</th>
+              <th style="width: 100px;">মোট পরিমাণ</th>
+              <th style="width: 80px;">অর্ডার</th>
+              <th style="width: 120px;">মোট টাকা</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${itemsRows}
+          </tbody>
+        </table>
+
+        <div class="print-signatures" style="margin-top: 50px;">
+          <div class="sig-line">হিসাবরক্ষকের স্বাক্ষর</div>
+          <div class="sig-line">স্বত্বাধিকারীর স্বাক্ষর</div>
+        </div>
+      </div>
+    `;
+
+    const container = document.getElementById('printable-invoice');
+    container.innerHTML = html;
+    window.print();
+  },
+
+
+  // -------------------------------------------------------------
   // EVENT BINDINGS & LISTENERS
   // -------------------------------------------------------------
   bindEvents() {
@@ -1034,6 +1326,40 @@ const app = {
 
     document.getElementById('btn-modal-pdf').addEventListener('click', () => {
       this.exportPdf();
+    });
+
+    // Reports events
+    document.querySelectorAll('.report-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.applyReportPreset(btn.dataset.preset);
+        this.fetchAndRenderReport();
+      });
+    });
+
+    document.querySelectorAll('.report-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.switchReportTab(btn.dataset.tab);
+      });
+    });
+
+    document.getElementById('btn-load-report').addEventListener('click', () => {
+      this.fetchAndRenderReport();
+    });
+
+    document.getElementById('btn-export-sales-excel').addEventListener('click', () => {
+      this.exportSalesReportExcel();
+    });
+
+    document.getElementById('btn-export-memos-excel').addEventListener('click', () => {
+      this.exportMemosExcel();
+    });
+
+    document.getElementById('btn-export-dues-excel').addEventListener('click', () => {
+      this.exportDuesExcel();
+    });
+
+    document.getElementById('btn-print-report').addEventListener('click', () => {
+      this.printReport();
     });
   },
 

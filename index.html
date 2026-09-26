@@ -48,6 +48,10 @@
           <span class="nav-icon">👥</span>
           <span>কাস্টমার ডিরেক্টরি</span>
         </li>
+        <li class="nav-item" data-view="reports">
+          <span class="nav-icon">📈</span>
+          <span>রিপোর্ট ও এনালাইটিক্স</span>
+        </li>
         <li class="nav-item" data-view="settings">
           <span class="nav-icon">⚙️</span>
           <span>সেটিংস ও প্রিন্টার</span>
@@ -294,7 +298,10 @@
           <div class="card">
             <div class="card-header">
               <h3>মেমো ও চালান খাতা</h3>
-              <button class="btn btn-primary btn-sm" onclick="app.navigate('create-memo')">+ নতুন মেমো</button>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" id="btn-export-memos-excel">📊 এক্সেলে এক্সপোর্ট</button>
+                <button class="btn btn-primary btn-sm" onclick="app.navigate('create-memo')">+ নতুন মেমো</button>
+              </div>
             </div>
 
             <!-- Filters -->
@@ -357,6 +364,7 @@
                 <h3>বকেয়া খাতা (Due Management)</h3>
                 <p style="font-size: 13px; color: var(--text-dim);">যাদের কাছে বকেয়া পাওনা রয়েছে তাদের বিস্তারিত তালিকা</p>
               </div>
+              <button class="btn btn-secondary btn-sm" id="btn-export-dues-excel">📊 বকেয়া তালিকা এক্সেলে ডাউনলোড</button>
             </div>
 
             <div class="table-responsive">
@@ -408,6 +416,161 @@
                   <!-- Filled via JS -->
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW: REPORTS & ANALYTICS -->
+        <section id="view-reports" class="content-view hidden">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3>ব্যবসায়িক হিসাব ও বিক্রয় রিপোর্ট</h3>
+                <p style="font-size: 13px; color: var(--text-dim);">তারিখ অনুযায়ী বিক্রয়, ক্যাশ আদায় ও মালামালের বিশ্লেষণ</p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary btn-sm" id="btn-print-report">🖨️ রিপোর্ট প্রিন্ট</button>
+                <button class="btn btn-success btn-sm" id="btn-export-sales-excel">📊 পূর্ণাঙ্গ রিপোর্ট এক্সেলে ডাউনলোড (.xlsx)</button>
+              </div>
+            </div>
+
+            <!-- Date Range Selector -->
+            <div class="form-grid" style="grid-template-columns: 2fr 1fr 1fr auto; align-items: end; margin-bottom: 20px;">
+              <div class="form-group">
+                <label>দ্রুত ফিল্টার (Presets)</label>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-secondary btn-sm report-preset-btn" data-preset="today">আজ</button>
+                  <button type="button" class="btn btn-secondary btn-sm report-preset-btn" data-preset="week">চলতি সপ্তাহ</button>
+                  <button type="button" class="btn btn-secondary btn-sm report-preset-btn active" data-preset="month">চলতি মাস</button>
+                  <button type="button" class="btn btn-secondary btn-sm report-preset-btn" data-preset="last_month">পূর্ববর্তী মাস</button>
+                  <button type="button" class="btn btn-secondary btn-sm report-preset-btn" data-preset="all">সব সময়</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="report-from-date">শুরুর তারিখ</label>
+                <input type="date" id="report-from-date" class="form-control">
+              </div>
+
+              <div class="form-group">
+                <label for="report-to-date">শেষ তারিখ</label>
+                <input type="date" id="report-to-date" class="form-control">
+              </div>
+
+              <div>
+                <button type="button" class="btn btn-primary" id="btn-load-report">🔍 রিপোর্ট দেখুন</button>
+              </div>
+            </div>
+
+            <!-- Report Metric Cards -->
+            <div class="stats-grid" style="margin-bottom: 24px;">
+              <div class="stat-card">
+                <div class="stat-icon blue">💼</div>
+                <div class="stat-details">
+                  <h3>মোট বিক্রয় মূল্য (Grand Total)</h3>
+                  <div class="value" id="rep-total-sales">০/-</div>
+                  <div class="sub" id="rep-memo-count">০ টি মেমো</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon green">💵</div>
+                <div class="stat-details">
+                  <h3>মোট ক্যাশ আদায় (Cash Inflow)</h3>
+                  <div class="value" id="rep-total-cash">০/-</div>
+                  <div class="sub">অগ্রিম ও পেছনের বকেয়া জমা</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon purple">🏷️</div>
+                <div class="stat-details">
+                  <h3>মোট ছাড় / ডিসকাউন্ট</h3>
+                  <div class="value" id="rep-total-discount">০/-</div>
+                  <div class="sub">কাস্টমারকে দেওয়া ছাড়</div>
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-icon yellow">⚠️</div>
+                <div class="stat-details">
+                  <h3>এ সময়ের বকেয়া পাওনা</h3>
+                  <div class="value" id="rep-total-due" style="color: #f87171;">০/-</div>
+                  <div class="sub">অনাদায়ী টাকা</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; margin-bottom: 18px;">
+              <button class="btn btn-secondary btn-sm report-tab-btn active" data-tab="items">📦 আইটেম বিক্রয় বিশ্লেষণ</button>
+              <button class="btn btn-secondary btn-sm report-tab-btn" data-tab="memos">📑 মেমো ও চালানের তালিকা</button>
+              <button class="btn btn-secondary btn-sm report-tab-btn" data-tab="payments">💰 আদায়কৃত বকেয়া রসিদ</button>
+            </div>
+
+            <!-- Tab 1: Item Breakdown Table -->
+            <div id="rep-tab-items" class="rep-tab-content">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px; text-align: center;">ক্র.</th>
+                      <th>পণ্যের বিবরণ / কাজের নাম</th>
+                      <th style="width: 130px; text-align: center;">মোট পরিমাণ</th>
+                      <th style="width: 120px; text-align: center;">অর্ডার সংখ্যা</th>
+                      <th style="width: 160px; text-align: right;">মোট বিক্রয় মূল্য</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-items-tbody">
+                    <!-- Loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tab 2: Memos Table -->
+            <div id="rep-tab-memos" class="rep-tab-content hidden">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>মেমো নং</th>
+                      <th>তারিখ</th>
+                      <th>গ্রাহকের নাম</th>
+                      <th>মোবাইল</th>
+                      <th>সর্বমোট বিল</th>
+                      <th>জমা</th>
+                      <th>বকেয়া</th>
+                      <th>স্ট্যাটাস</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-memos-tbody">
+                    <!-- Loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Tab 3: Payments Collected Table -->
+            <div id="rep-tab-payments" class="rep-tab-content hidden">
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>জমার তারিখ</th>
+                      <th>মেমো নং</th>
+                      <th>গ্রাহকের নাম</th>
+                      <th>মোবাইল</th>
+                      <th>টাকার পরিমাণ</th>
+                      <th>পেমেন্ট মাধ্যম</th>
+                      <th>নোট / মন্তব্য</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rep-payments-tbody">
+                    <!-- Loaded via JS -->
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </section>

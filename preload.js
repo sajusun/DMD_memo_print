@@ -34,6 +34,10 @@ contextBridge.exposeInMainWorld('dmdAPI', {
   backupDatabase: () => ipcRenderer.invoke('db:backup'),
   restoreDatabase: () => ipcRenderer.invoke('db:restore'),
 
+  // Reports & Excel Export
+  getSalesReport: (filters) => ipcRenderer.invoke('reports:getSalesData', filters),
+  exportExcel: (options) => ipcRenderer.invoke('reports:exportExcel', options),
+
   // System & OS Info
   getSystemInfo: () => ipcRenderer.invoke('system:getInfo'),
   onSystemStats: (callback) => {
