@@ -1,35 +1,41 @@
 {
-    "name": "DMSA",
-    "productName": "DMS Application",
-    "version": "1.0.0",
-    "main": "main.js",
-    "icon": "icon.gif",
-    "license": "MIT",
-    "author": "sakhawat hossain",
-    "scripts": {
-        "start": "electron .",
-        "build-installer": "electron-builder"
+  "name": "dmd-memo-print",
+  "productName": "Dinajpur Metallic Designs (DMD)",
+  "version": "2.0.0",
+  "description": "Enterprise Memo, Billing & Accounts Management Desktop Application",
+  "main": "main.js",
+  "license": "MIT",
+  "author": "Sakhawat Hossain",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.dmd.memoprint",
+    "productName": "Dinajpur Metallic Designs",
+    "directories": {
+      "output": "dist"
     },
-    "build": {
-        "appId": "DMSA",
-        "productName": "DMS Application",
-        "directory": {
-            "output": "build"
-        },
-        "target": "NSIS",
-        "win": {
-            "target": [
-                "nsis"
-            ]
-        }
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "icon/create-icon.png"
     },
-    "devDependencies": {
-        "electron": "^10.1.3",
-        "electron-packager": "^15.1.0"
-    },
-    "dependencies": {
-        "jshint": "^2.12.0",
-        "mysql": "^2.18.1",
-        "os-utils": "0.0.14"
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "sql.js": "^1.14.2"
+  }
 }
