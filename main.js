@@ -7,6 +7,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const XLSX = require('xlsx');
 const db = require('./database/db');
 
 let mainWindow = null;
@@ -245,6 +246,132 @@ ipcMain.handle('db:restore', async () => {
     return { success: false, error: err.message };
   }
 });
+
+// ----------------------------------------------------
+// REPORTS & EXCEL / CSV EXPORT
+// ----------------------------------------------------
+
+ipcMain.handle('reports:getSalesData', async (event, filters) => {
+  return db.getSalesReport(filters);
+});
+
+ipcMain.handle('reports:exportExcel', async (event, { type, data, defaultFilename = 'DMD_Report.xlsx' }) => {
+  if (!mainWindow) return { success: false, error: 'Window not available' };
+  try {
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      title: 'এক্সেল ফাইল সেভ করুন',
+      defaultPath: path.join(app.getPath('documents'), defaultFilename),
+      filters: [{ name: 'Excel Spreadsheet', extensions: ['xlsx'] }]
+    });
+
+    if (canceled || !filePath) return { success: false, canceled: true };
+
+    const wb = XLSX.utils.book_new();
+
+    if (type === 'sales_summary') {
+      // 1. Summary Sheet
+      const summaryRows = [
+        ['দিনাজপুর মেটালিক ডিজাইনস - বিক্রয় ও হিসাব রিপোর্ট'],
+        ['তারিখ রেঞ্জ:', `${data.fromDate || 'শুরু'} হতে ${data.toDate || 'বর্তমান'}`],
+        [],
+        ['বিবরণ', 'পরিমাণ / টাকা'],
+        ['মোট মেমো সংখ্যা', data.summary.memo_count],
+        ['মোট পণ্য মূল্য (Subtotal)', data.summary.total_subtotal],
+        ['মোট ছাড় / ডিসকাউন্ট (Discount)', data.summary.total_discount],
+        ['সর্বমোট বিক্রয় মূল্য (Grand Total)', data.summary.total_billed],
+        ['মেমোর সাথে নেওয়া অগ্রিম জমা (Advance)', data.summary.total_advance],
+        ['বকেয়া বাবদ পরবর্তীতে আদায় (Due Collected)', data.summary.total_extra_paid],
+        ['সর্বমোট নগদ ক্যাশ জমা (Total Cash Inflow)', data.summary.total_cash_inflow],
+        ['বর্তমান মোট বকেয়া পাওনা (Net Due)', data.summary.total_due]
+      ];
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'হিসাব সারসংক্ষেপ');
+
+      // 2. Memos Sheet
+      if (data.memos && data.memos.length) {
+        const memoRows = data.memos.map(m => ({
+          'মেমো নং': m.memo_no,
+          'তারিখ': m.memo_date,
+          'গ্রাহকের নাম': m.customer_name,
+          'মোবাইল নম্বর': m.customer_phone || '',
+          'ঠিকানা': m.customer_address || '',
+          'মোট টাকা': m.subtotal,
+          'ছাড়': m.discount,
+          'সর্বমোট': m.grand_total,
+          'অগ্রিম জমা': m.advance_paid,
+          'বকেয়া': m.due_amount,
+          'স্ট্যাটাস': m.payment_status === 'paid' ? 'পরিশোধিত' : (m.payment_status === 'partial' ? 'আংশিক বাকি' : 'সম্পূর্ণ বাকি')
+        }));
+        const wsMemos = XLSX.utils.json_to_sheet(memoRows);
+        XLSX.utils.book_append_sheet(wb, wsMemos, 'মেমো তালিকা');
+      }
+
+      // 3. Item breakdown sheet
+      if (data.itemsBreakdown && data.itemsBreakdown.length) {
+        const itemRows = data.itemsBreakdown.map(i => ({
+          'পণ্যের বিবরণ / কাজের নাম': i.description,
+          'মোট পরিমাণ': i.total_quantity,
+          'একক': i.unit || 'টি',
+          'অর্ডার সংখ্যা': i.orders_count,
+          'মোট বিক্রয় মূল্য (টাকা)': i.total_revenue
+        }));
+        const wsItems = XLSX.utils.json_to_sheet(itemRows);
+        XLSX.utils.book_append_sheet(wb, wsItems, 'আইটেম বিক্রয় বিশ্লেষণ');
+      }
+
+      // 4. Payments collected
+      if (data.payments && data.payments.length) {
+        const payRows = data.payments.map(p => ({
+          'জমার তারিখ': p.payment_date,
+          'মেমো নং': p.memo_no,
+          'গ্রাহকের নাম': p.customer_name,
+          'মোবাইল': p.customer_phone || '',
+          'টাকার পরিমাণ': p.amount,
+          'পেমেন্ট মাধ্যম': p.payment_method || 'ক্যাশ',
+          'নোট': p.note || ''
+        }));
+        const wsPayments = XLSX.utils.json_to_sheet(payRows);
+        XLSX.utils.book_append_sheet(wb, wsPayments, 'আদায়কৃত বকেয়া');
+      }
+    } else if (type === 'memos_list') {
+      const memoRows = (data || []).map(m => ({
+        'মেমো নং': m.memo_no,
+        'তারিখ': m.memo_date,
+        'গ্রাহকের নাম': m.customer_name,
+        'মোবাইল নম্বর': m.customer_phone || '',
+        'ঠিকানা': m.customer_address || '',
+        'মোট টাকা': m.subtotal,
+        'ছাড়': m.discount,
+        'সর্বমোট': m.grand_total,
+        'অগ্রিম জমা': m.advance_paid,
+        'বকেয়া': m.due_amount,
+        'স্ট্যাটাস': m.payment_status === 'paid' ? 'পরিশোধিত' : (m.payment_status === 'partial' ? 'আংশিক বাকি' : 'সম্পূর্ণ বাকি')
+      }));
+      const ws = XLSX.utils.json_to_sheet(memoRows);
+      XLSX.utils.book_append_sheet(wb, ws, 'মেমো খাতা');
+    } else if (type === 'due_list') {
+      const dueRows = (data || []).map(m => ({
+        'মেমো নং': m.memo_no,
+        'তারিখ': m.memo_date,
+        'গ্রাহকের নাম': m.customer_name,
+        'মোবাইল': m.customer_phone || '',
+        'ঠিকানা': m.customer_address || '',
+        'মোট বিল': m.grand_total,
+        'জমা': m.advance_paid,
+        'বকেয়া পাওনা': m.due_amount
+      }));
+      const ws = XLSX.utils.json_to_sheet(dueRows);
+      XLSX.utils.book_append_sheet(wb, ws, 'বকেয়া তালিকা');
+    }
+
+    XLSX.writeFile(wb, filePath);
+    return { success: true, filePath };
+  } catch (err) {
+    console.error('Excel export error:', err);
+    return { success: false, error: err.message };
+  }
+});
+
 
 // App Lifecycle
 app.whenReady().then(createWindow);
